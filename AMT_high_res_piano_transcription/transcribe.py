@@ -1,11 +1,24 @@
 from piano_transcription_inference import PianoTranscription, sample_rate, load_audio
+import argparse
 
-# Load audio
-filename = '../recordings/maestro-2004-MIDI-Unprocessed_XP_22_R2_2004_01_ORIG_MID--AUDIO_22_R2_2004_04_Track04_wav.wav'
-(audio, _) = load_audio(filename, sr=sample_rate, mono=True)
 
-# Transcriptor
-transcriptor = PianoTranscription(device='cuda')    # 'cuda' | 'cpu'
 
-# Transcribe and write out to MIDI file
-transcribed_dict = transcriptor.transcribe(audio, 'transcribed.mid')
+if __name__ == '__main__':
+
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--audio_file', type=str, required=True)
+    arg_parser.add_argument('--output_file', type=str, required=True)
+    arg_parser.add_argument('--device', type=str, default='cuda')
+    args = arg_parser.parse_args()
+
+    # Check arguments
+    assert args.device in ['cuda', 'cpu']
+
+    # Load audio
+    (audio, _) = load_audio(args.audio_file, sr=sample_rate, mono=True)
+
+    # Transcriptor
+    transcriptor = PianoTranscription(device=args.device)    # 'cuda' | 'cpu'
+
+    # Transcribe and write out to MIDI file
+    transcribed_dict = transcriptor.transcribe(audio, args.output_file)
